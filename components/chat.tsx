@@ -14,7 +14,22 @@ import { toast } from 'sonner';
 export function Chat() {
   const [isComposing, setIsComposing] = useState(false);
   const { messages, input, setInput, handleInputChange, handleSubmit, status, error } = useChat({
-    api: 'https://localhost:3001/api/chat'
+    api: 'https://mono-rosy.vercel.app/api/chat',
+    initialMessages: [
+      {
+        id: 'system',
+        role: 'system',
+        content: `
+        You are Mo, an AI buddy in app Mono.
+        You are here to help the user with their daily tasks and provide information.
+        You are friendly and helpful.
+        One of your main goals is to help the user stay focused and productive.
+        Current Local Time: ${new Date().toLocaleString()}
+        Your default language is English and Traditional Chinese.
+        You can also respond in other languages if the user asks you to.
+        `
+      }
+    ]
   });
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -60,20 +75,24 @@ export function Chat() {
   return (
     <div className="flex flex-col relative h-full w-full rounded-lg ">
       {/* Messages area */}
-      <div ref={messagesContainerRef} className=" overflow-y-auto p-4 h-[60dvh]">
+      <div ref={messagesContainerRef} className=" overflow-y-auto p-4 h-[60vh]">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
             <p>Send a message to start</p>
           </div>
         ) : (
-          messages.map((message) => (
+          messages.map((message, index) => (
             <div
               key={message.id}
-              className={cn('flex mt-2', message.role === 'user' ? 'justify-end' : 'justify-start')}
+              className={cn(
+                'flex mt-2',
+                message.role === 'user' ? 'justify-end' : 'justify-start',
+                message.role === 'system' && 'hidden'
+              )}
             >
               <div
                 className={cn(
-                  'rounded-lg  flex py-2 text-sm max-w-[80%] items-start ',
+                  'rounded-lg  flex py-2 text-sm max-w-[90%] items-start ',
                   message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                 )}
               >
@@ -85,7 +104,9 @@ export function Chat() {
                     height={20}
                     className={cn(
                       'brightness-100 invert-0 dark:brightness-0 dark:invert',
-                      status === 'streaming' && 'animate-spin ease-in-out duration-1000'
+                      status === 'streaming' &&
+                        index === messages.length - 1 &&
+                        'animate-spin ease-in-out duration-1000'
                     )}
                     priority
                   />
@@ -98,11 +119,14 @@ export function Chat() {
           ))
         )}
         <div ref={messagesEndRef} />
+        {/* Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-muted  to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-muted  to-transparent pointer-events-none" />
       </div>
 
       {/* Input area */}
-      <div className="p-3 ">
-        <form onSubmit={handleFormSubmit} className="flex gap-2 x">
+      <div className="px-3 z-10">
+        <form onSubmit={handleFormSubmit} className="flex gap-2 x ">
           <div className="relative flex-1">
             <Textarea
               value={input}

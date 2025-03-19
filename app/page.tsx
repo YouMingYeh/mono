@@ -20,8 +20,9 @@ import Image from 'next/image';
 import type React from 'react';
 import { useState, useRef, useEffect } from 'react';
 
+const THRESHOLD = 120; // Minimum swipe distance in pixels
+
 export default function Page() {
-  const [showAssistant, setShowAssistant] = useState(false);
   const [activeSection, setActiveSection] = useState(0); // 0, 1, 2 for the three sections
   const [isSwiping, setIsSwiping] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
@@ -38,21 +39,8 @@ export default function Page() {
     const difference = touchStartX - touchEndX;
     setIsSwiping(false);
 
-    // For AI assistant (special case from far right edge)
-    if (difference > 150 && touchStartX > window.innerWidth - 50) {
-      setShowAssistant(true);
-      await impactFeedback('medium');
-      return;
-    }
-    // Hide assistant if open and swiping right
-    else if (difference < -150 && showAssistant) {
-      setShowAssistant(false);
-      await impactFeedback('soft');
-      return;
-    }
-
     // For section navigation
-    if (Math.abs(difference) > 80) {
+    if (Math.abs(difference) > THRESHOLD) {
       if (difference > 0 && activeSection < 2) {
         // Swipe left - go to next section
         setActiveSection((prev) => prev + 1);
@@ -152,14 +140,14 @@ export default function Page() {
       >
         {/* Section 1: Home */}
         <section className="w-screen h-full px-4 py-16 flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-center">
+          <h2 className="text-xl font-semibold mb-4 text-center mx-auto">
             Home
             <Image
               width={120}
               height={120}
               src="/photos/image-mesh-gradient-1.png"
               alt="Home"
-              className="w-8 h-8 rounded-full mx-auto inline-flex ml-2"
+              className="w-8 h-8 rounded-full inline-flex ml-2"
             />
           </h2>
           <BorderlessCarousel
@@ -280,7 +268,15 @@ export default function Page() {
       </nav>
 
       <div className="fixed top-0 left-0 p-4">
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={() => {
+            window.location.reload();
+            impactFeedback('soft');
+          }}
+        >
           <Image
             src="/logo.svg"
             alt="Mono Mode"

@@ -22,17 +22,17 @@ export function MonoModeDialog() {
 
   // Detect device orientation
   useEffect(() => {
-    const checkOrientation = () => {
+    const updateOrientation = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
     };
 
-    checkOrientation();
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
+    updateOrientation();
+    window.addEventListener('resize', updateOrientation);
+    window.addEventListener('orientationchange', updateOrientation);
 
     return () => {
-      window.removeEventListener('resize', checkOrientation);
-      window.removeEventListener('orientationchange', checkOrientation);
+      window.removeEventListener('resize', updateOrientation);
+      window.removeEventListener('orientationchange', updateOrientation);
     };
   }, []);
 
@@ -41,7 +41,7 @@ export function MonoModeDialog() {
     const timer = setInterval(() => {
       const now = new Date();
       setTime(now);
-      // Trigger animation every minute
+      // Trigger animation at the start of each minute
       if (now.getSeconds() === 0) {
         setIsAnimating(true);
         setTimeout(() => setIsAnimating(false), 1000);
@@ -51,13 +51,13 @@ export function MonoModeDialog() {
     return () => clearInterval(timer);
   }, []);
 
-  // Pomodoro countdown effect with awaitable notifications
+  // Pomodoro countdown effect with async notifications
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
     if (open && !isBreakTime) {
       countdownInterval = setInterval(() => {
-        setCountdownTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+        setCountdownTime((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
 
@@ -66,11 +66,11 @@ export function MonoModeDialog() {
     };
   }, [open, isBreakTime]);
 
-  // When the countdown finishes, trigger async notifications
+  // Notify when countdown ends
   useEffect(() => {
     if (open && !isBreakTime && countdownTime === 0) {
       (async () => {
-        sendNotification({ title: 'Mono', body: 'Time for a break!' });
+        sendNotification({ title: 'Mono', body: 'Time to take a break!' });
         await notificationFeedback('warning');
         setIsBreakTime(true);
       })();
@@ -89,7 +89,7 @@ export function MonoModeDialog() {
   const minutes = time.getMinutes().toString().padStart(2, '0');
   const seconds = time.getSeconds().toString().padStart(2, '0');
 
-  // Get day and date
+  // Get current date information
   const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const day = days[time.getDay()];
   const date = time.getDate();
@@ -112,12 +112,12 @@ export function MonoModeDialog() {
   const formattedDate = `${month} ${date}, ${year}`;
   const formattedDay = `${day}, ${formattedDate}`;
 
-  const handleOpenChange = async (open: boolean) => {
-    setOpen(open);
+  const handleOpenChange = async (isOpen: boolean) => {
+    setOpen(isOpen);
     await impactFeedback('soft');
 
-    if (open) {
-      // Reset and start countdown when dialog opens
+    if (isOpen) {
+      // Restart countdown when dialog opens
       setCountdownTime(25 * 60);
       setIsBreakTime(false);
     }
@@ -132,13 +132,13 @@ export function MonoModeDialog() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="shine">
+        <Button variant="shine" size="lg">
           <Image
             src="/logo.svg"
             alt="Mono Mode"
             width={24}
             height={24}
-            className="brightness-0 invert mr-2 dark:brightness-100 dark:invert-0"
+            className="brightness-0 invert mr-2 dark:brightness-100 dark:invert-0 animate-pulse font-bold"
             priority
           />
           Mono Mode
@@ -150,7 +150,7 @@ export function MonoModeDialog() {
         </DialogTitle>
 
         <div className="relative flex items-center justify-center w-full h-full">
-          {/* Container with adaptive sizing based on orientation */}
+          {/* Adaptive layout based on device orientation */}
           <div
             className={cn(
               'relative flex flex-col items-center justify-center transition-all duration-300',
@@ -159,7 +159,7 @@ export function MonoModeDialog() {
                 : 'w-[100dvh] h-[100dvw] transform rotate-90 origin-center'
             )}
           >
-            {/* Content container */}
+            {/* Content */}
             <Image
               src="/logo.svg"
               alt="Mono Mode"
@@ -169,14 +169,14 @@ export function MonoModeDialog() {
               priority
             />
             <div className="relative z-10 w-full">
-              {/* Top row with date */}
+              {/* Display date */}
               <div className="flex text-lg font-medium justify-center">
                 <div>
-                  <span className="text-muted-foreground ">{formattedDay}</span>
+                  <span className="text-muted-foreground">{formattedDay}</span>
                 </div>
               </div>
 
-              {/* Main time display */}
+              {/* Clock display */}
               <div
                 className={cn(
                   'text-8xl font-bold tracking-tighter transition-all duration-700 ease-in-out text-center text-nowrap',
@@ -190,10 +190,10 @@ export function MonoModeDialog() {
               {/* Pomodoro countdown */}
               <div className="text-xl font-medium mt-4 text-center transition-all">
                 {isBreakTime ? (
-                  <div className="text-primary font-bold animate-pulse">Time for a break!</div>
+                  <div className="text-primary font-bold animate-pulse">Break time!</div>
                 ) : (
                   <div className="text-muted-foreground">
-                    Focus time:{' '}
+                    Focus session:{' '}
                     <span className="text-primary">{formatCountdown(countdownTime)}</span>
                   </div>
                 )}
