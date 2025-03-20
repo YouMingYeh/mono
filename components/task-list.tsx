@@ -14,20 +14,14 @@ import {
   DrawerTrigger
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
+import { createTask, deleteTask, getTasks, updateTask } from '@/lib/db';
+import { Task, TaskCreate } from '@/lib/types';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { impactFeedback, selectionFeedback } from '@tauri-apps/plugin-haptics';
-import { Store } from '@tauri-apps/plugin-store';
 import { PlusIcon, ClockIcon, TrashIcon, ChevronRight } from 'lucide-react';
 import { CircleCheckBig } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-
-interface Task {
-  id: string;
-  title: string;
-  time: string;
-  completed: boolean;
-}
 
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -57,15 +51,16 @@ export default function TaskList() {
   // Get the first incomplete task for the header
   const currentFocusTask = sortedTasks.find((task) => !task.completed);
 
-  const addTask = () => {
+  const addTask = async () => {
     if (newTaskTitle.trim()) {
-      const newTaskItem: Task = {
-        id: Date.now().toString(),
+      const newTaskItem: TaskCreate = {
         title: newTaskTitle,
-        time: newTaskTime,
-        completed: false
+        time: newTaskTime
       };
-      setTasks([newTaskItem, ...tasks]);
+      const newTask = await createTask(newTaskItem);
+      toast.success('Task added successfully!');
+      await impactFeedback('heavy');
+      setTasks([newTask, ...tasks]);
       setNewTaskTitle('');
       setNewTaskTime('');
       setDrawerOpen(false);
@@ -80,41 +75,23 @@ export default function TaskList() {
     );
     setTasks(updatedTasks);
     await selectionFeedback();
+    await updateTask({
+      id: taskId,
+      completed: !tasks.find((task) => task.id === taskId)?.completed
+    });
   };
 
   const removeTask = async (taskId: string) => {
     setTasks(tasks.filter((task) => task.id !== taskId));
     await impactFeedback('heavy');
+    await deleteTask(taskId);
   };
 
   useEffect(() => {
-    const saveTasks = async () => {
-      if (typeof window !== 'undefined') {
-        return;
-      }
-      try {
-        const store = await Store.load('store.json', { autoSave: false });
-        await store.set('tasks', { value: tasks });
-        await store.save();
-      } catch (error) {
-        console.error('Error saving tasks:', error);
-      }
-    };
-    saveTasks();
-  }, [tasks]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      return;
-    }
     const fetchData = async () => {
       try {
-        const store = await Store.load('store.json', { autoSave: false });
-        const value = await store.get<{ value: Task[] }>('tasks');
-        if (value) {
-          const tasks = value.value;
-          setTasks(tasks);
-        }
+        const tasks = await getTasks();
+        setTasks(tasks);
       } catch (error) {
         console.error('Error loading settings:', error);
       }

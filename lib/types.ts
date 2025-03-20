@@ -1,8 +1,23 @@
-export interface Task {
+export type Task = {
   id: string;
-  text: string;
+  title: string;
+  time: string;
   completed: boolean;
-}
+  created_at: string;
+  updated_at: string;
+};
+
+export type TaskCreate = {
+  title: string;
+  time: string;
+};
+
+export type TaskUpdate = {
+  id: string;
+  title?: string;
+  time?: string;
+  completed?: boolean;
+};
 
 export interface MoodData {
   date: string;

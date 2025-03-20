@@ -1,14 +1,10 @@
+'use client';
+
 import './globals.css';
 import Providers from './providers';
 import { Toaster } from '@/components/ui/sonner';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Mono AI',
-  description: 'A minimalist productivity app'
-};
 
 export default function RootLayout({
   children

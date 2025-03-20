@@ -21,18 +21,17 @@ export function MyGreetingMessage() {
 
   return (
     <main className="flex flex-col items-start justify-center my-4">
-      <h1 className="text-4xl font-light font-mono tabular-nums tracking-tight ">{greeting}!</h1>
+      <h1 className="text-4xl font-light font-mono tabular-nums tracking-tight">{greeting}!</h1>
       <br />
-      <h2 className="text-xl font-light font-mono tabular-nums tracking-tight ">
-        It&apos;s{' '}
+      <h2 className="text-xl font-light font-mono tabular-nums tracking-tight">
+        It’s{' '}
         <strong className="font-bold">
           {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })},{' '}
           {currentTime.toLocaleDateString()}
         </strong>
       </h2>
-
-      <h3 className="text-lg font-light font-mono tabular-nums tracking-tight ">
-        How are you doing today?
+      <h3 className="text-lg font-light font-mono tabular-nums tracking-tight">
+        Ready to make the most of your day?
       </h3>
     </main>
   );

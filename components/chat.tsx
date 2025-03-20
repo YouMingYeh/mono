@@ -30,7 +30,10 @@ export function Chat() {
   const { messages, setMessages, input, setInput, handleInputChange, handleSubmit, status, error } =
     useChat({
       api: 'https://mono-rosy.vercel.app/api/chat',
-      initialMessages: [initialSystemMessage]
+      initialMessages: [initialSystemMessage],
+      onFinish: async () => {
+        await impactFeedback('heavy');
+      }
     });
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -59,11 +62,12 @@ export function Chat() {
     }
   }, [messages, status]);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
       handleSubmit(e);
     }
+    await impactFeedback('heavy');
   };
 
   const resetChat = async () => {
@@ -89,7 +93,7 @@ export function Chat() {
           variant="ghost"
           size="icon"
           onClick={resetChat}
-          className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90"
+          className="h-8 w-8 rounded-full bg-background/80  hover:bg-background/90"
           title="Reset conversation"
         >
           <RotateCcw size={14} />

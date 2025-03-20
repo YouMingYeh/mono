@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+'use client';
+
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React, { memo } from 'react';
@@ -8,6 +10,9 @@ import type { Components } from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 
 interface MarkdownProps {
   children: string;
