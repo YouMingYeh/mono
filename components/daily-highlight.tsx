@@ -3,12 +3,13 @@
 import { AccordionItem, AccordionContent } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useStore } from '@/hooks/use-store';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { PlusIcon, Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function DailyHighlight() {
-  const [highlight, setHighlight] = useState('');
+  const { activeHighlight, handleUpdateHighlight } = useStore();
   const [isEditing, setIsEditing] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [allSuggestions] = useState<string[]>([
@@ -26,28 +27,10 @@ export default function DailyHighlight() {
     'Plan tomorrow’s top task.'
   ]); // Full list of suggestions
 
-  // Load saved highlight from localStorage
   useEffect(() => {
-    const savedHighlight = localStorage.getItem('dailyHighlight');
-    if (savedHighlight) {
-      setHighlight(savedHighlight);
-    } else {
-      setIsEditing(true);
-    }
-    loadInitialSuggestions();
-  }, []);
-
-  // Save highlight to localStorage
-  useEffect(() => {
-    if (highlight.trim()) {
-      localStorage.setItem('dailyHighlight', highlight);
-    }
-  }, [highlight]);
-
-  const loadInitialSuggestions = () => {
     const shuffled = [...allSuggestions].sort(() => Math.random() - 0.5);
     setSuggestions(shuffled.slice(0, 4));
-  };
+  }, [allSuggestions]);
 
   const loadMoreSuggestions = () => {
     const currentSuggestions = [...suggestions];
@@ -67,13 +50,13 @@ export default function DailyHighlight() {
   };
 
   const handleSave = () => {
-    if (highlight.trim()) {
+    if (activeHighlight.trim()) {
       setIsEditing(false);
     }
   };
 
-  const selectSuggestion = (suggestion: string) => {
-    setHighlight(suggestion);
+  const selectSuggestion = async (suggestion: string) => {
+    await handleUpdateHighlight(suggestion);
     setIsEditing(false);
   };
 
@@ -93,8 +76,8 @@ export default function DailyHighlight() {
               aria-hidden="true"
             />
             <span>
-              {highlight && !isEditing ? (
-                <strong className="italic underline">{highlight}</strong>
+              {activeHighlight && !isEditing ? (
+                <strong className="italic underline">{activeHighlight}</strong>
               ) : (
                 'Choose today’s highlight'
               )}
@@ -112,12 +95,12 @@ export default function DailyHighlight() {
           <div className="space-y-4 p-1">
             <div className="flex gap-2">
               <Input
-                value={highlight}
-                onChange={(e) => setHighlight(e.target.value)}
+                value={activeHighlight}
+                onChange={async (e) => await handleUpdateHighlight(e.target.value)}
                 placeholder="What’s your focus?"
                 className="flex-1 bg-background"
               />
-              <Button onClick={handleSave} size="sm" disabled={!highlight.trim()}>
+              <Button onClick={handleSave} size="sm" disabled={!activeHighlight.trim()}>
                 Save
               </Button>
             </div>
@@ -143,7 +126,7 @@ export default function DailyHighlight() {
                       onClick={loadMoreSuggestions}
                       className="text-xs h-8 px-2 whitespace-nowrap"
                     >
-                      More ideas
+                      More ideas...
                     </Button>
                   )}
                 </div>
@@ -152,9 +135,11 @@ export default function DailyHighlight() {
           </div>
         ) : (
           <div className="flex justify-between items-center">
-            <p className="text-sm">{highlight ? '↑ Go for it!' : 'Add a highlight to start!'}</p>
+            <p className="text-sm">
+              {activeHighlight ? '↑ Go for it!' : 'Add a highlight to start!'}
+            </p>
             <Button variant="secondary" size="sm" onClick={handleEdit} className="text-xs h-7 px-2">
-              Edit
+              {activeHighlight ? 'Edit' : 'Add'}
             </Button>
           </div>
         )}

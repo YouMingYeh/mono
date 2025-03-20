@@ -19,17 +19,26 @@ export type TaskUpdate = {
   completed?: boolean;
 };
 
-export interface MoodData {
+export type Mood = {
+  id: string;
   date: string;
-  mood: 'great' | 'good' | 'neutral' | 'low' | 'bad';
-  energy: 'high' | 'medium' | 'low';
-}
+  mood: MoodType;
+  energy: Energy;
+  created_at: string;
+  updated_at: string;
+};
 
-export interface ReflectionData {
+export type MoodCreate = {
   date: string;
-  content: string;
-  prompt: string;
-}
+  mood: MoodType;
+  energy: Energy;
+};
+export type MoodUpdate = {
+  id: string;
+  date?: string;
+  mood?: MoodType;
+  energy?: Energy;
+};
 
-export type Mood = 'great' | 'good' | 'neutral' | 'low' | 'bad';
+export type MoodType = 'great' | 'good' | 'neutral' | 'low' | 'bad';
 export type Energy = 'high' | 'medium' | 'low';

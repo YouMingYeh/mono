@@ -1,6 +1,6 @@
 'use client';
 
-import { Task, TaskCreate, TaskUpdate } from './types';
+import { Mood, MoodCreate, MoodUpdate, Task, TaskCreate, TaskUpdate } from './types';
 import Database from '@tauri-apps/plugin-sql';
 import { v4 } from 'uuid';
 
@@ -35,5 +35,37 @@ export async function updateTask(task: TaskUpdate) {
 
 export async function deleteTask(id: string) {
   await db.execute('DELETE FROM task WHERE id = ?', [id]);
+  return id;
+}
+
+export async function getMoods() {
+  const rows = (await db.select('SELECT * FROM mood')) as Mood[];
+  return rows;
+}
+
+export async function createMood(mood: MoodCreate) {
+  const { date, mood: moodType, energy } = mood;
+  await db.execute('INSERT INTO mood (id, date, mood, energy) VALUES (?, ?, ?, ?)', [
+    v4(),
+    date,
+    moodType,
+    energy
+  ]);
+  const rows = (await db.select('SELECT * FROM mood WHERE date = ?', [date])) as Mood[];
+  return rows[0];
+}
+export async function updateMood(mood: MoodUpdate) {
+  const { id, date, mood: moodType, energy } = mood;
+  await db.execute('UPDATE mood SET date = ?, mood = ?, energy = ? WHERE id = ?', [
+    date,
+    moodType,
+    energy,
+    id
+  ]);
+  const rows = (await db.select('SELECT * FROM mood WHERE id = ?', [id])) as Mood[];
+  return rows[0];
+}
+export async function deleteMood(id: string) {
+  await db.execute('DELETE FROM mood WHERE id = ?', [id]);
   return id;
 }

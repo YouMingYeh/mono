@@ -9,6 +9,8 @@ interface StoreContextType {
   handleUpdateTheme: (theme: string) => Promise<void>;
   activeSection: number;
   handleUpdateSection: (section: number) => Promise<void>;
+  activeHighlight: string;
+  handleUpdateHighlight: (highlight: string) => Promise<void>;
   isLoaded: boolean;
 }
 
@@ -18,6 +20,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const isMounted = useIsMounted();
   const { setTheme } = useTheme();
   const [activeSection, setSection] = useState(0);
+  const [activeHighlight, setHighlight] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize store
@@ -31,6 +34,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         // Load initial values
         const themeData = await storeInstance.get<{ value: string }>('theme');
         const sectionData = await storeInstance.get<{ value: number }>('section');
+        const highlightData = await storeInstance.get<{ value: string }>('highlight');
 
         if (themeData?.value) {
           setTheme(themeData.value);
@@ -38,6 +42,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         if (sectionData?.value) {
           setSection(sectionData.value);
+        }
+
+        if (highlightData?.value) {
+          setHighlight(highlightData.value);
         }
 
         setIsLoaded(true);
@@ -81,12 +89,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleUpdateHighlight = async (newHighlight: string) => {
+    try {
+      const storeInstance = await Store.load('store.json', { autoSave: false });
+      // Update the store
+      await storeInstance.set('highlight', { value: newHighlight });
+      await storeInstance.save();
+      // Update local state
+      setHighlight(newHighlight);
+    } catch (error) {
+      console.error('Error setting highlight:', error);
+    }
+  };
   return (
     <StoreContext.Provider
       value={{
         handleUpdateTheme,
         activeSection,
         handleUpdateSection,
+        activeHighlight,
+        handleUpdateHighlight,
         isLoaded
       }}
     >

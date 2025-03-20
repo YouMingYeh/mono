@@ -1,19 +1,34 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Define migrations inside the function
-    let migrations = vec![tauri_plugin_sql::Migration {
-        version: 1,
-        description: "Create task table",
-        sql: "CREATE TABLE IF NOT EXISTS task (
-            id TEXT PRIMARY KEY, 
-            title TEXT,
-            completed INTEGER DEFAULT 0, 
-            time TEXT, 
-            created_at TEXT DEFAULT (datetime('now')), 
-            updated_at TEXT DEFAULT (datetime('now'))
-        );",
-        kind: tauri_plugin_sql::MigrationKind::Up,
-    }];
+    let migrations = vec![
+        tauri_plugin_sql::Migration {
+            version: 1,
+            description: "Create task table",
+            sql: "CREATE TABLE IF NOT EXISTS task (
+                id TEXT PRIMARY KEY, 
+                title TEXT,
+                completed INTEGER DEFAULT 0, 
+                time TEXT, 
+                created_at TEXT DEFAULT (datetime('now')), 
+                updated_at TEXT DEFAULT (datetime('now'))
+            );",
+            kind: tauri_plugin_sql::MigrationKind::Up,
+        },
+        tauri_plugin_sql::Migration {
+            version: 2,
+            description: "Create mood table",
+            sql: "CREATE TABLE IF NOT EXISTS mood (
+                id TEXT PRIMARY KEY,
+                mood TEXT NOT NULL,
+                energy TEXT NOT NULL,
+                date TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now')),
+                updated_at TEXT DEFAULT (datetime('now'))
+            );",
+            kind: tauri_plugin_sql::MigrationKind::Up,
+        },
+    ];
 
     tauri::Builder::default()
         .setup(|app| {
