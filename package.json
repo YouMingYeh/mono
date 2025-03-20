@@ -49,6 +49,7 @@
     "@tauri-apps/plugin-store": "^2.2.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "ai": "^4.1.62",
+    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
@@ -79,6 +80,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@tauri-apps/cli": "^2.3.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.11",
     "@types/react-dom": "^19.0.4",

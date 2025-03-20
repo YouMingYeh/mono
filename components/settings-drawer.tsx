@@ -19,22 +19,24 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { useStore } from '@/hooks/use-store';
 import { impactFeedback } from '@tauri-apps/plugin-haptics';
 import { Store } from '@tauri-apps/plugin-store';
 import { Check, MoonIcon, Settings, SunIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
+import { useState } from 'react';
 
 export function SettingsDrawer() {
+  const { theme } = useTheme();
+  const { handleUpdateTheme } = useStore();
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
   const [font, setFont] = useState('sans');
   const [language, setLanguage] = useState('en');
   const [timezone, setTimezone] = useState('UTC');
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark');
+    handleUpdateTheme(newTheme);
   };
 
   const onSave = async () => {
@@ -46,22 +48,6 @@ export function SettingsDrawer() {
       console.error('Error saving settings:', error);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const store = await Store.load('store.json', { autoSave: false });
-        const value = await store.get<{ value: string }>('theme');
-        if (value?.value) {
-          setTheme(value.value);
-          document.documentElement.classList.toggle(value.value);
-        }
-      } catch (error) {
-        console.error('Error loading settings:', error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleOpenChange = async (open: boolean) => {
     if (!open) {
@@ -88,7 +74,7 @@ export function SettingsDrawer() {
             <div className="px-6 py-4">
               <div className="space-y-6">
                 {/* Theme */}
-                <Label className="text-sm font-medium">Theme</Label>
+                <Label className="text-sm font-medium">Theme: {theme}</Label>
                 <div>
                   <div className="relative inline-grid h-9 grid-cols-[1fr_1fr] items-center text-sm font-medium">
                     <Switch

@@ -5,7 +5,7 @@
   "identifier": "tw.adastra.mono",
   "build": {
     "frontendDist": "../out",
-    "devUrl": "http://172.20.10.3:3000",
+    "devUrl": "http://0.0.0.0:3000",
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build"
   },

@@ -1,4 +1,5 @@
 import './globals.css';
+import Providers from './providers';
 import { Toaster } from '@/components/ui/sonner';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
@@ -23,8 +24,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Toaster />
-        {children}
+        <Providers>
+          <Toaster />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import NumberFlow from '@number-flow/react';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { impactFeedback, notificationFeedback } from '@tauri-apps/plugin-haptics';
 import { sendNotification } from '@tauri-apps/plugin-notification';
+import confetti from 'canvas-confetti';
 import { RotateCcw } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -16,9 +17,15 @@ export function MonoModeDialog() {
   const [open, setOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+
   // Pomodoro states
   const [countdownTime, setCountdownTime] = useState(25 * 60); // 25 minutes in seconds
   const [isBreakTime, setIsBreakTime] = useState(false);
+
+  // 5 Second Rule states
+  const [isInitialCountdown, setIsInitialCountdown] = useState(false);
+  const [initialCount, setInitialCount] = useState(5);
+  const [isSessionStarted, setIsSessionStarted] = useState(false);
 
   // Detect device orientation
   useEffect(() => {
@@ -51,11 +58,37 @@ export function MonoModeDialog() {
     return () => clearInterval(timer);
   }, []);
 
+  // 5 Second Rule countdown effect
+  useEffect(() => {
+    let initialCountdownInterval: NodeJS.Timeout;
+
+    if (open && isInitialCountdown) {
+      initialCountdownInterval = setInterval(async () => {
+        setInitialCount((prev) => {
+          if (prev <= 1) {
+            // When countdown reaches 0, start the session
+            setIsInitialCountdown(false);
+            setIsSessionStarted(true);
+
+            // Trigger haptic feedback
+            impactFeedback('medium');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (initialCountdownInterval) clearInterval(initialCountdownInterval);
+    };
+  }, [open, isInitialCountdown]);
+
   // Pomodoro countdown effect with async notifications
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
-    if (open && !isBreakTime) {
+    if (open && isSessionStarted && !isBreakTime) {
       countdownInterval = setInterval(() => {
         setCountdownTime((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
@@ -64,18 +97,23 @@ export function MonoModeDialog() {
     return () => {
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [open, isBreakTime]);
+  }, [open, isSessionStarted, isBreakTime]);
 
   // Notify when countdown ends
   useEffect(() => {
-    if (open && !isBreakTime && countdownTime === 0) {
+    if (open && isSessionStarted && !isBreakTime && countdownTime === 0) {
       (async () => {
         sendNotification({ title: 'Mono', body: 'Time to take a break!' });
+        playFireworks();
+        await notificationFeedback('warning');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await notificationFeedback('warning');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         await notificationFeedback('warning');
         setIsBreakTime(true);
       })();
     }
-  }, [countdownTime, open, isBreakTime]);
+  }, [countdownTime, open, isSessionStarted, isBreakTime]);
 
   // Format countdown as MM:SS
   const formatCountdown = (seconds: number) => {
@@ -120,13 +158,54 @@ export function MonoModeDialog() {
       // Restart countdown when dialog opens
       setCountdownTime(25 * 60);
       setIsBreakTime(false);
+      setIsSessionStarted(false);
+      setInitialCount(5);
+      setIsInitialCountdown(true);
     }
   };
 
   const resetCountdown = async () => {
     setCountdownTime(25 * 60);
     setIsBreakTime(false);
+    setIsSessionStarted(false);
+    setInitialCount(5);
+    setIsInitialCountdown(true);
     await impactFeedback('medium');
+  };
+
+  const startSession = async () => {
+    setIsInitialCountdown(true);
+    await impactFeedback('soft');
+  };
+
+  const playFireworks = () => {
+    const duration = 5 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval = window.setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        zIndex: 51
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        zIndex: 51
+      });
+    }, 250);
   };
 
   return (
@@ -187,10 +266,25 @@ export function MonoModeDialog() {
                 <NumberFlow format={{ minimumIntegerDigits: 2 }} value={Number(minutes)} />
               </div>
 
-              {/* Pomodoro countdown */}
-              <div className="text-xl font-medium mt-4 text-center transition-all">
-                {isBreakTime ? (
+              {/* 5 Second Rule countdown or Pomodoro countdown */}
+              <div className="text-xl font-medium mt-8 text-center transition-all space-y-4">
+                {isInitialCountdown ? (
+                  <div className="space-y-2">
+                    <p className="text-primary">Take a deep breath...</p>
+                    <p className="text-sm text-muted-foreground mt-1">we will start in </p>
+                    <div className="text-4xl font-bold animate-pulse">
+                      <NumberFlow value={initialCount} className="text-primary" />
+                    </div>
+                  </div>
+                ) : isBreakTime ? (
                   <div className="text-primary font-bold animate-pulse">Break time!</div>
+                ) : !isSessionStarted ? (
+                  <div className="space-y-4">
+                    <p className="text-muted-foreground">Ready to focus?</p>
+                    <Button onClick={startSession} size="lg">
+                      Start 25-minute Focus Session
+                    </Button>
+                  </div>
                 ) : (
                   <div className="text-muted-foreground">
                     Focus session:{' '}
@@ -198,12 +292,15 @@ export function MonoModeDialog() {
                   </div>
                 )}
               </div>
-              <div className="flex justify-center mt-4">
-                <Button variant="outline" size="sm" onClick={resetCountdown}>
-                  <RotateCcw size={16} className="mr-2" />
-                  Reset Timer
-                </Button>
-              </div>
+
+              {(isSessionStarted || isBreakTime) && (
+                <div className="flex justify-center mt-4">
+                  <Button variant="outline" size="sm" onClick={resetCountdown}>
+                    <RotateCcw size={16} className="mr-2" />
+                    Reset Timer
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

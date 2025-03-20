@@ -12,6 +12,7 @@ import { SettingsDrawer } from '@/components/settings-drawer';
 import TaskList from '@/components/task-list';
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
+import { useStore } from '@/hooks/use-store';
 import { cn } from '@/lib/utils';
 import { impactFeedback } from '@tauri-apps/plugin-haptics';
 import { isPermissionGranted, requestPermission } from '@tauri-apps/plugin-notification';
@@ -20,10 +21,10 @@ import Image from 'next/image';
 import type React from 'react';
 import { useState, useRef, useEffect } from 'react';
 
-const THRESHOLD = 120; // Minimum swipe distance in pixels
+const THRESHOLD = 150; // Minimum swipe distance in pixels
 
 export default function Page() {
-  const [activeSection, setActiveSection] = useState(0); // 0, 1, 2 for the three sections
+  const { activeSection, handleUpdateSection } = useStore();
   const [isSwiping, setIsSwiping] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -43,11 +44,11 @@ export default function Page() {
     if (Math.abs(difference) > THRESHOLD) {
       if (difference > 0 && activeSection < 2) {
         // Swipe left - go to next section
-        setActiveSection((prev) => prev + 1);
+        await handleUpdateSection(activeSection + 1);
         await impactFeedback('soft');
       } else if (difference < 0 && activeSection > 0) {
         // Swipe right - go to previous section
-        setActiveSection((prev) => prev - 1);
+        await handleUpdateSection(activeSection - 1);
         await impactFeedback('soft');
       }
     }
@@ -56,7 +57,7 @@ export default function Page() {
   // Navigate to section programmatically
   const goToSection = async (section: number) => {
     if (section >= 0 && section <= 2) {
-      setActiveSection(section);
+      await handleUpdateSection(section);
       await impactFeedback('soft');
     }
   };

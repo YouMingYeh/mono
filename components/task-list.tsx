@@ -163,7 +163,7 @@ export default function TaskList() {
                 <PlusIcon size={14} className="mr-1" /> Add Task
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="max-w-md mx-auto max-h-none h-[80svh] ">
+            <DrawerContent className=" max-h-none h-[80svh] ">
               <DrawerHeader>
                 <DrawerTitle className="text-xl font-normal">Add a task</DrawerTitle>
                 <DrawerDescription className="text-sm text-muted-foreground">
