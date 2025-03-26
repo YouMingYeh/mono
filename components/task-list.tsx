@@ -201,7 +201,7 @@ export default function TaskList() {
               sortedTasks.map((task) => (
                 <Button
                   key={task.id}
-                  className={`p-3 rounded-lg w-full   transition-all duration-200  ${
+                  className={`p-3 h-full rounded-lg w-full transition-all duration-200 ${
                     !task.completed ? 'bg-background ' : 'opacity-75'
                   }`}
                   variant="outline"
@@ -211,32 +211,34 @@ export default function TaskList() {
                   }}
                 >
                   <div className="flex items-center justify-between gap-2 w-full">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => toggleTask(task.id)}
                         id={`task-${task.id}`}
-                        className="h-5 w-5"
+                        className="h-5 w-5 mt-0.5"
                         style={
                           {
                             '--primary': 'var(--color-emerald-500)'
                           } as React.CSSProperties
                         }
                       />
-                      <div className="cursor-pointer flex-1">
+                      <div className="cursor-pointer flex-1 min-w-0">
                         <label
                           htmlFor={`task-${task.id}`}
-                          className={`text-base font-medium transition-all ${task.completed ? 'line-through opacity-70' : ''}`}
+                          className={`text-base text-left font-medium transition-all block break-words ${
+                            task.completed ? 'line-through opacity-70' : ''
+                          }`}
                         >
                           {task.title}
                         </label>
+                        {task.time && (
+                          <div className="flex items-center mt-1 text-xs text-muted-foreground gap-1">
+                            <ClockIcon size={12} />
+                            <span>{task.time}</span>
+                          </div>
+                        )}
                       </div>
-                      {task.time && (
-                        <div className="flex items-center mt-1 text-xs text-muted-foreground gap-1">
-                          <ClockIcon size={12} />
-                          <span>{task.time}</span>
-                        </div>
-                      )}
                     </div>
                     <Button
                       variant="ghost"
@@ -245,7 +247,7 @@ export default function TaskList() {
                         e.stopPropagation();
                         removeTask(task.id);
                       }}
-                      className="opacity-70 h-7 w-7 p-0 rounded-full hover:bg-red-50 hover:text-red-600"
+                      className="opacity-70 h-7 w-7 p-0 rounded-full hover:bg-red-50 hover:text-red-600 flex-shrink-0"
                       aria-label="Remove task"
                     >
                       <TrashIcon size={14} />

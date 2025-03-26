@@ -46,7 +46,7 @@ export default function Chat() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-            <p>Send a message to start the conversation</p>
+            <p>Tell me anything...</p>
           </div>
         ) : (
           messages.map((message) => (
@@ -198,7 +198,7 @@ export default function Chat() {
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder="Type a message..."
+            placeholder="Say something..."
             disabled={isLoading}
             className="flex-1"
           />

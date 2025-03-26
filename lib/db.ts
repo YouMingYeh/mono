@@ -4,68 +4,101 @@ import { Mood, MoodCreate, MoodUpdate, Task, TaskCreate, TaskUpdate } from './ty
 import Database from '@tauri-apps/plugin-sql';
 import { v4 } from 'uuid';
 
-const db = await Database.load('sqlite:main.db');
+// Use a singleton pattern for database connection
+let db: Database | null = null;
 
+// Initialize database connection
+async function getDb() {
+  if (!db) {
+    try {
+      db = await Database.load('sqlite:main.db');
+    } catch (error) {
+      console.error('Failed to connect to database:', error);
+      throw error;
+    }
+  }
+  return db;
+}
+
+// Task Operations
 export async function getTasks() {
-  const rows = (await db.select('SELECT * FROM task')) as Task[];
+  const database = await getDb();
+  const rows = (await database.select('SELECT * FROM task')) as Task[];
   return rows;
 }
 
 export async function createTask(task: TaskCreate) {
+  const database = await getDb();
   const { title, time } = task;
-  await db.execute(
+  const id = v4();
+  const now = new Date().toISOString();
+
+  await database.execute(
     'INSERT INTO task (id, title, time, completed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-    [v4(), title, time, 0, new Date().toISOString(), new Date().toISOString()]
+    [id, title, time, 0, now, now]
   );
-  const rows = (await db.select('SELECT * FROM task WHERE title = ? AND time = ?', [
-    title,
-    time
-  ])) as Task[];
+
+  const rows = (await database.select('SELECT * FROM task WHERE id = ?', [id])) as Task[];
   return rows[0];
 }
+
 export async function updateTask(task: TaskUpdate) {
+  const database = await getDb();
   const { id, title, time, completed } = task;
-  await db.execute(
+
+  await database.execute(
     'UPDATE task SET title = ?, time = ?, completed = ?, updated_at = ? WHERE id = ?',
     [title, time, completed, new Date().toISOString(), id]
   );
-  const rows = (await db.select('SELECT * FROM task WHERE id = ?', [id])) as Task[];
+
+  const rows = (await database.select('SELECT * FROM task WHERE id = ?', [id])) as Task[];
   return rows[0];
 }
 
 export async function deleteTask(id: string) {
-  await db.execute('DELETE FROM task WHERE id = ?', [id]);
+  const database = await getDb();
+  await database.execute('DELETE FROM task WHERE id = ?', [id]);
   return id;
 }
 
+// Mood Operations
 export async function getMoods() {
-  const rows = (await db.select('SELECT * FROM mood')) as Mood[];
+  const database = await getDb();
+  const rows = (await database.select('SELECT * FROM mood')) as Mood[];
   return rows;
 }
 
 export async function createMood(mood: MoodCreate) {
+  const database = await getDb();
   const { date, mood: moodType, energy } = mood;
-  await db.execute('INSERT INTO mood (id, date, mood, energy) VALUES (?, ?, ?, ?)', [
-    v4(),
-    date,
-    moodType,
-    energy
-  ]);
-  const rows = (await db.select('SELECT * FROM mood WHERE date = ?', [date])) as Mood[];
+  const id = v4();
+  const now = new Date().toISOString();
+
+  await database.execute(
+    'INSERT INTO mood (id, date, mood, energy, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [id, date, moodType, energy, now, now]
+  );
+
+  const rows = (await database.select('SELECT * FROM mood WHERE id = ?', [id])) as Mood[];
   return rows[0];
 }
+
 export async function updateMood(mood: MoodUpdate) {
+  const database = await getDb();
   const { id, date, mood: moodType, energy } = mood;
-  await db.execute('UPDATE mood SET date = ?, mood = ?, energy = ? WHERE id = ?', [
-    date,
-    moodType,
-    energy,
-    id
-  ]);
-  const rows = (await db.select('SELECT * FROM mood WHERE id = ?', [id])) as Mood[];
+  const now = new Date().toISOString();
+
+  await database.execute(
+    'UPDATE mood SET date = ?, mood = ?, energy = ?, updated_at = ? WHERE id = ?',
+    [date, moodType, energy, now, id]
+  );
+
+  const rows = (await database.select('SELECT * FROM mood WHERE id = ?', [id])) as Mood[];
   return rows[0];
 }
+
 export async function deleteMood(id: string) {
-  await db.execute('DELETE FROM mood WHERE id = ?', [id]);
+  const database = await getDb();
+  await database.execute('DELETE FROM mood WHERE id = ?', [id]);
   return id;
 }

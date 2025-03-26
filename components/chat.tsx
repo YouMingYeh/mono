@@ -104,7 +104,7 @@ export function Chat() {
       <div ref={messagesContainerRef} className="overflow-y-auto p-4 h-[60vh] pb-32">
         {messages.length <= 1 ? (
           <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-            <p>Send a message to start</p>
+            <p>Tell me anything...</p>
           </div>
         ) : (
           messages.map((message, index) => (
@@ -158,7 +158,7 @@ export function Chat() {
               value={input}
               onChange={handleInputChange}
               placeholder="Say something..."
-              className="resize-y py-1.75 min-h-10 border-primary pr-10 w-full whitespace-pre-wrap overflow-hidden"
+              className="resize-y min-h-9 border-primary pr-10 w-full whitespace-pre-wrap overflow-hidden"
               onCompositionStart={() => setIsComposing(true)}
               onCompositionEnd={() => setIsComposing(false)}
               onKeyDown={(e) => {
@@ -171,7 +171,7 @@ export function Chat() {
             />
             {input && (
               <button
-                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full  w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Clear input"
                 onClick={() => {
                   setInput('');

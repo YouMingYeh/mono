@@ -12,6 +12,7 @@ import { SettingsDrawer } from '@/components/settings-drawer';
 import TaskList from '@/components/task-list';
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
+import { useIsMounted } from '@/hooks/use-is-mounted';
 import { useStore } from '@/hooks/use-store';
 import { cn } from '@/lib/utils';
 import { impactFeedback } from '@tauri-apps/plugin-haptics';
@@ -24,6 +25,7 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 const THRESHOLD = 150; // Minimum swipe distance in pixels
 
 export default function Main() {
+  const isMounted = useIsMounted();
   const { activeSection, handleUpdateSection } = useStore();
   const [isSwiping, setIsSwiping] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
@@ -275,7 +277,9 @@ export default function Main() {
           size="icon"
           className="rounded-full"
           onClick={() => {
-            window.location.reload();
+            if (isMounted) {
+              window.location.reload();
+            }
             impactFeedback('soft');
           }}
         >

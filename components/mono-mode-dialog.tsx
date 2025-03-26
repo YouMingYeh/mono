@@ -8,7 +8,7 @@ import { DialogTitle } from '@radix-ui/react-dialog';
 import { impactFeedback, notificationFeedback } from '@tauri-apps/plugin-haptics';
 import { sendNotification } from '@tauri-apps/plugin-notification';
 import confetti from 'canvas-confetti';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, RotateCw } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
@@ -16,7 +16,8 @@ export function MonoModeDialog() {
   const [time, setTime] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isLandscape, setIsLandscape] = useState(false);
+  const [, setIsLandscape] = useState(false);
+  const [rotationDegrees, setRotationDegrees] = useState(0); // Track manual rotation
 
   // Pomodoro states
   const [countdownTime, setCountdownTime] = useState(25 * 60); // 25 minutes in seconds
@@ -178,6 +179,13 @@ export function MonoModeDialog() {
     await impactFeedback('soft');
   };
 
+  // Handle manual rotation
+  const handleRotateScreen = async () => {
+    // Rotate in 90-degree increments (0 -> 90 -> 180 -> 270 -> 0)
+    setRotationDegrees((prev) => (prev + 90) % 360);
+    await impactFeedback('soft');
+  };
+
   const playFireworks = () => {
     const duration = 5 * 1000;
     const animationEnd = Date.now() + duration;
@@ -229,14 +237,15 @@ export function MonoModeDialog() {
         </DialogTitle>
 
         <div className="relative flex items-center justify-center w-full h-full">
-          {/* Adaptive layout based on device orientation */}
+          {/* Content container with manual rotation */}
           <div
-            className={cn(
-              'relative flex flex-col items-center justify-center transition-all duration-300',
-              isLandscape
-                ? 'w-full h-full'
-                : 'w-[100dvh] h-[100dvw] transform rotate-90 origin-center'
-            )}
+            className="relative flex flex-col items-center justify-center transition-all duration-300"
+            style={{
+              transform: `rotate(${rotationDegrees}deg)`,
+              width: rotationDegrees % 180 === 0 ? '100%' : '100dvh',
+              height: rotationDegrees % 180 === 0 ? '100%' : '100dvw',
+              transformOrigin: 'center'
+            }}
           >
             {/* Content */}
             <Image
@@ -302,6 +311,18 @@ export function MonoModeDialog() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Rotation button - fixed position in bottom right corner */}
+          <div className="absolute bottom-4 right-4 z-50">
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full h-8 w-8"
+              onClick={handleRotateScreen}
+            >
+              <RotateCw size={14} />
+            </Button>
           </div>
         </div>
       </DialogContent>
