@@ -1,16 +1,11 @@
 'use client';
 
-import { BorderlessCarousel } from '@/components/borderless-carousel';
+import { Challenge } from '@/components/challenge';
 import { Chat } from '@/components/chat';
-import DailyHighlight from '@/components/daily-highlight';
-import { MonoModeDialog } from '@/components/mono-mode-dialog';
-import MoodTracker from '@/components/mood-tracker';
-import { MyCalendar } from '@/components/my-calendar';
 import { MyGreetingMessage } from '@/components/my-greeting-message';
-import { MyTime } from '@/components/my-time';
+import { Onboard } from '@/components/onboard';
+import { Profile } from '@/components/profile';
 import { SettingsDrawer } from '@/components/settings-drawer';
-import TaskList from '@/components/task-list';
-import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { useIsMounted } from '@/hooks/use-is-mounted';
 import { useStore } from '@/hooks/use-store';
@@ -85,6 +80,7 @@ export default function Main() {
       onTouchEnd={handleTouchEnd}
       vaul-drawer-wrapper="true"
     >
+      <Onboard />
       <Suspense>
         {/* Navigation dots */}
         <div className="absolute top-4 left-0 right-0 z-10 flex justify-center gap-2">
@@ -143,78 +139,21 @@ export default function Main() {
         >
           {/* Section 1: Home */}
           <section className="w-screen h-full px-4 py-16 flex flex-col">
-            <h2 className="text-xl font-semibold mb-4 text-center mx-auto">
-              Home
-              <Image
-                width={120}
-                height={120}
-                src="/photos/image-mesh-gradient-1.png"
-                alt="Home"
-                className="w-8 h-8 rounded-full inline-flex ml-2"
-              />
-            </h2>
-            <BorderlessCarousel
-              childrens={[
-                {
-                  id: 'greeting',
-                  component: <MyGreetingMessage />
-                },
-                {
-                  id: 'time',
-                  component: <MyTime />
-                },
-                {
-                  id: 'calendar',
-                  component: <MyCalendar />
-                }
-              ]}
-            />
-            <div className="flex items-center justify-center mt-6">
-              <MonoModeDialog />
+            <div className="flex flex-col items-center justify-center mt-6 px-6">
+              <Profile />
+              <MyGreetingMessage />
             </div>
           </section>
 
-          {/* Section 2: Daily */}
+          {/* Section 2: Challenge */}
           <section className="w-screen h-full px-4 py-16 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Daily
-              <Image
-                width={120}
-                height={120}
-                src="/photos/image-mesh-gradient-2.png"
-                alt="Daily"
-                className="w-8 h-8 rounded-full mx-auto inline-flex ml-2"
-              />
-            </h2>
-            <div className="space-y-6 max-w-lg mx-auto">
-              <Accordion
-                type="single"
-                defaultValue={'task'}
-                className="w-full"
-                collapsible
-                onValueChange={async () => {
-                  await impactFeedback('soft');
-                }}
-              >
-                <TaskList />
-                <DailyHighlight />
-                <MoodTracker />
-              </Accordion>
+            <div className="space-y-6 max-w-lg mx-auto px-6">
+              <Challenge />
             </div>
           </section>
 
           {/* Section 3: Chat */}
           <section className="w-screen h-full px-4 py-16 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Chat
-              <Image
-                width={120}
-                height={120}
-                src="/photos/image-mesh-gradient-3.png"
-                alt="Chat"
-                className="w-8 h-8 rounded-full mx-auto inline-flex ml-2"
-              />
-            </h2>
             <div className="space-y-6 max-w-lg mx-auto">
               <Chat />
             </div>
@@ -249,10 +188,10 @@ export default function Main() {
             width={120}
             height={120}
             src="/photos/image-mesh-gradient-2.png"
-            alt="Daily"
+            alt="Challenge"
             className="w-6 h-6 rounded-full mx-auto inline-flex "
           />
-          <span className="text-xs">Daily</span>
+          <span className="text-xs">Challenge</span>
         </Button>
         <Button
           variant={activeSection === 2 ? 'default' : 'ghost'}
@@ -284,10 +223,10 @@ export default function Main() {
           }}
         >
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Mono Mode"
-            width={28}
-            height={28}
+            width={48}
+            height={48}
             className="brightness-100 invert-0 dark:brightness-0 dark:invert"
             priority
           />

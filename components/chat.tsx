@@ -124,7 +124,7 @@ export function Chat() {
               >
                 {message.role === 'assistant' && (
                   <Image
-                    src="/logo.svg"
+                    src="/logo.png"
                     alt="Mono Mode"
                     width={20}
                     height={20}

@@ -1,44 +1,24 @@
-export type Task = {
+export type User = {
   id: string;
-  title: string;
-  time: string;
-  completed: boolean;
-  created_at: string;
-  updated_at: string;
+  name: string;
+  avatar: string;
+  createdAt: Date;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  birthday?: string;
 };
 
-export type TaskCreate = {
-  title: string;
-  time: string;
-};
-
-export type TaskUpdate = {
+export type Challenge = {
   id: string;
-  title?: string;
-  time?: string;
-  completed?: boolean;
+  name: string;
+  createdAt: Date;
+  description: string;
 };
 
-export type Mood = {
-  id: string;
-  date: string;
-  mood: MoodType;
-  energy: Energy;
-  created_at: string;
-  updated_at: string;
+export type Memo = {
+  challengeId: string;
+  day: number;
+  content?: string;
+  sticker?: string;
 };
-
-export type MoodCreate = {
-  date: string;
-  mood: MoodType;
-  energy: Energy;
-};
-export type MoodUpdate = {
-  id: string;
-  date?: string;
-  mood?: MoodType;
-  energy?: Energy;
-};
-
-export type MoodType = 'great' | 'good' | 'neutral' | 'low' | 'bad';
-export type Energy = 'high' | 'medium' | 'low';

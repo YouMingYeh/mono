@@ -1,6 +1,7 @@
 'use client';
 
 import { useIsMounted } from '@/hooks/use-is-mounted';
+import { User } from '@/lib/types';
 import { Store } from '@tauri-apps/plugin-store';
 import { useTheme } from 'next-themes';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -9,8 +10,8 @@ interface StoreContextType {
   handleUpdateTheme: (theme: string) => Promise<void>;
   activeSection: number;
   handleUpdateSection: (section: number) => Promise<void>;
-  activeHighlight: string;
-  handleUpdateHighlight: (highlight: string) => Promise<void>;
+  user: User | null;
+  handleUpdateUser: (user: User) => Promise<void>;
   isLoaded: boolean;
 }
 
@@ -20,7 +21,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const isMounted = useIsMounted();
   const { setTheme } = useTheme();
   const [activeSection, setSection] = useState(0);
-  const [activeHighlight, setHighlight] = useState('');
+  const [user, setUser] = useState<User | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize store
@@ -33,8 +34,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         // Load initial values
         const themeData = await storeInstance.get<{ value: string }>('theme');
+        const userData = await storeInstance.get<{ value: User }>('user');
         const sectionData = await storeInstance.get<{ value: number }>('section');
-        const highlightData = await storeInstance.get<{ value: string }>('highlight');
 
         if (themeData?.value) {
           setTheme(themeData.value);
@@ -44,8 +45,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setSection(sectionData.value);
         }
 
-        if (highlightData?.value) {
-          setHighlight(highlightData.value);
+        if (userData?.value) {
+          setUser(userData.value);
         }
 
         setIsLoaded(true);
@@ -56,7 +57,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     initStore();
-  }, [isMounted, setTheme]);
+  }, [isMounted, setTheme, setUser]);
 
   // Functions to update values
   const handleUpdateTheme = async (newTheme: string) => {
@@ -74,41 +75,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleUpdateSection = async (newSection: number) => {
+  const handleUpdateUser = async (newUser: User) => {
     try {
       const storeInstance = await Store.load('store.json', { autoSave: false });
 
       // Update the store
-      await storeInstance.set('section', { value: newSection });
+      await storeInstance.set('user', { value: newUser });
       await storeInstance.save();
 
+      // Update local state
+      setUser(newUser);
+    } catch (error) {
+      console.error('Error setting user:', error);
+    }
+  };
+  const handleUpdateSection = async (newSection: number) => {
+    try {
+      const storeInstance = await Store.load('store.json', { autoSave: false });
+      // Update the store
+      await storeInstance.set('section', { value: newSection });
+      await storeInstance.save();
       // Update local state
       setSection(newSection);
     } catch (error) {
       console.error('Error setting section:', error);
     }
   };
-
-  const handleUpdateHighlight = async (newHighlight: string) => {
-    try {
-      const storeInstance = await Store.load('store.json', { autoSave: false });
-      // Update the store
-      await storeInstance.set('highlight', { value: newHighlight });
-      await storeInstance.save();
-      // Update local state
-      setHighlight(newHighlight);
-    } catch (error) {
-      console.error('Error setting highlight:', error);
-    }
-  };
   return (
     <StoreContext.Provider
       value={{
         handleUpdateTheme,
+        user,
+        handleUpdateUser,
         activeSection,
         handleUpdateSection,
-        activeHighlight,
-        handleUpdateHighlight,
         isLoaded
       }}
     >

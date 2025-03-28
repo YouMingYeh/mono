@@ -1,14 +1,21 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export default function Loading() {
+  const [loadedSlogan, setLoadedSlogan] = useState('');
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * SLOGANS.length);
+    setLoadedSlogan(SLOGANS[randomIndex]);
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-50 bg-muted flex items-center justify-center animate-fade-in px-8">
+    <div className="fixed inset-0 z-100 bg-muted flex items-center justify-center animate-fade-in px-8">
       <div className="m-auto">
         <div className="flex items-center justify-center">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Mono Mode"
             width={120}
             height={120}
@@ -19,12 +26,17 @@ export default function Loading() {
           <h2 className="text-xl font-semibold text-center">Mono</h2>
         </div>
         <div className="flex items-center justify-center mt-2">
-          <p className="text-sm text-muted-foreground text-center">
-            Change your life by making small daily decisions and staying focused, <br />
-            in just 5 seconds.
-          </p>
+          <p className="text-sm text-muted-foreground text-center">{loadedSlogan}</p>
         </div>
       </div>
     </div>
   );
 }
+
+const SLOGANS = [
+  'Transform Yourself, One Day at a Time',
+  '30 Days to a Better You',
+  'One Month to Mastery',
+  'Small Steps, Big Impact',
+  'Realize Your Potential in 30 Days'
+];

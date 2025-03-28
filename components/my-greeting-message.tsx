@@ -20,7 +20,7 @@ export function MyGreetingMessage() {
   const greeting = getGreeting();
 
   return (
-    <main className="flex flex-col items-start justify-center my-4">
+    <main className="flex flex-col items-start justify-center my-8">
       <h1 className="text-4xl font-light font-mono tabular-nums tracking-tight">{greeting}!</h1>
       <br />
       <h2 className="text-xl font-light font-mono tabular-nums tracking-tight">
@@ -31,7 +31,7 @@ export function MyGreetingMessage() {
         </strong>
       </h2>
       <h3 className="text-lg font-light font-mono tabular-nums tracking-tight">
-        Ready to make the most of your day?
+        Ready to start the challenge today?
       </h3>
     </main>
   );

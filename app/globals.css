@@ -113,6 +113,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-shine: shine 4s ease-out infinite;
+  --animate-fade-in: fadeIn 0.5s ease-out;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -131,6 +133,18 @@
     }
     to {
       height: 0;
+    }
+  }
+
+  @keyframes shine {
+    0% {
+      background-position: 200% 0;
+    }
+    45% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: -200% 0;
     }
   }
 
@@ -160,10 +174,6 @@
   body {
     @apply bg-muted text-foreground;
   }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
 }
 
 input[type='color'],
